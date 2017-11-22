@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simplecal</title>
+</head>
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.min.css"
+      integrity="sha256-I4gvabvvRivuPAYFqevVhZl88+vNf2NksupoBxMQi04=" crossorigin="anonymous">
+<link rel="stylesheet"
+      href="//cdn.rawgit.com/Paul-DS/bootstrap-year-calendar/v1.1.0/css/bootstrap-year-calendar.min.css">
+<body>
+<h1>Simplecal</h1>
+<div class="modal modal-fade" id="event-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
+                        class="sr-only">Close</span></button>
+                <h4 class="modal-title">
+                    Event
+                </h4>
+            </div>
+            <div class="modal-body">
+                <input name="event-index" type="hidden">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="event-name" class="col-sm-4 control-label">Name</label>
+                        <div class="col-sm-7">
+                            <input name="event-name" id="event-name" class="form-control" type="text">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-location" class="col-sm-4 control-label">Location</label>
+                        <div class="col-sm-7">
+                            <input name="event-location" id="event-location" class="form-control" type="text">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-start-date" class="col-sm-4 control-label">Dates</label>
+                        <div class="col-sm-7">
+                            <div class="input-group input-daterange" data-provide="datepicker">
+                                <input name="event-start-date" id="event-start-date" class="form-control" type="text">
+                                <span class="input-group-addon">to</span>
+                                <input name="event-end-date" id="event-end-date" class="form-control" type="text">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-event">
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="calendar" id="calendar"></div>
+<script src="//code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"
+        integrity="sha256-TueWqYu0G+lYIimeIcMI8x1m14QH/DQVt4s9m/uuhPw=" crossorigin="anonymous"></script>
+<script src="//cdn.rawgit.com/Paul-DS/bootstrap-year-calendar/v1.1.0/js/bootstrap-year-calendar.min.js"
+        crossorigin="anonymous"></script>
+<script src="js/simplecal.js"></script>
+<script>
+  $(function () {
+    $('#calendar').calendar({
+      enableContextMenu: true,
+      enableRangeSelection: true,
+      contextMenuItems: [
+        {
+          text: 'Update',
+          click: editEvent
+        },
+        {
+          text: 'Delete',
+          click: deleteEvent
+        }
+      ],
+      selectRange: function (e) {
+        editEvent({startDate: e.startDate, endDate: e.endDate});
+      },
+      mouseOnDay: function (e) {
+        if (e.events.length > 0) {
+          var content = '';
+
+          for (var i in e.events) {
+            content += '<div class="event-tooltip-content">'
+              + '<div class="event-name" style="color:' + e.events[i].color + '">' + e.events[i].name + '</div>'
+              + '<div class="event-location">' + e.events[i].location + '</div>'
+              + '</div>';
+          }
+
+          $(e.element).popover({
+            trigger: 'manual',
+            container: 'body',
+            html: true,
+            content: content
+          });
+
+          $(e.element).popover('show');
+        }
+      },
+      mouseOutDay: function (e) {
+        if (e.events.length > 0) {
+          $(e.element).popover('hide');
+        }
+      },
+      dayContextMenu: function (e) {
+        $(e.element).popover('hide');
+      },
+      dataSource: loadEvents()
+    });
+
+    $('#save-event').click(function () {
+      saveEvent();
+    });
+  });
+</script>
+</body>
+</html>
